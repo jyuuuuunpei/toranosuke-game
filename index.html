@@ -98,8 +98,29 @@
       <div class="stat"><b id="streak">0</b><span>連勝</span></div>
       <div class="stat"><b id="best">0</b><span>最高連勝</span></div>
     </section>
+ 
+    <section class="card" id="startScreen">
+  <div>
+    <div class="round">TORANOSUKE QUIZ</div>
+    <div class="speaker">とらのすけの嘘を見破れ！</div>
 
-    <section class="card" id="card">
+    <div class="quote">
+      とらのすけの発言が<br>
+      本当か嘘か見抜け。
+    </div>
+
+    <div class="hint">
+      全10問。<br>
+      何問正解できる？
+    </div>
+  </div>
+
+  <button class="next" id="startBtn"
+    style="display:block;">
+    ゲームスタート
+  </button>
+</section>
+    <section class="card" id="card" style="display:none;">
       <div>
         <div class="round" id="round">ROUND 1</div>
         <div class="speaker">とらのすけの発言</div>
@@ -145,6 +166,28 @@ let locked = false;
 let questionPool = [];
 
 const TOTAL_QUESTIONS = 10;
+let gameStarted = false;
+let gameFinished = false;
+
+$("startBtn").addEventListener("click", () => {
+
+  gameStarted = true;
+  gameFinished = false;
+
+  round = 1;
+  score = 0;
+  streak = 0;
+
+  $("score").textContent = 0;
+  $("streak").textContent = 0;
+
+  prepareQuestions();
+
+  $("startScreen").style.display = "none";
+  $("card").style.display = "flex";
+
+  nextQuestion();
+});
 
 const $ = id => document.getElementById(id);
 
@@ -262,35 +305,40 @@ $("nextBtn").addEventListener("click", () => {
 // 結果画面
 function showFinalResult() {
 
+  gameFinished = true;
   locked = true;
 
   $("round").textContent = "RESULT";
 
   $("quote").textContent =
-    `10問終了！ 正解数 ${score} / ${TOTAL_QUESTIONS}`;
+    `あなたの結果は ${score} / ${TOTAL_QUESTIONS} 問正解！`;
 
   let message = "";
 
   if (score === 10) {
 
     message =
-      "完全勝利。とらのすけの嘘を全部見抜いた。";
+      "全問正解！とらのすけ完全攻略。";
 
   } else if (score >= 8) {
 
     message =
-      "かなり鋭い。ほぼ見抜いている。";
+      "かなり鋭い。とらのすけの嘘はほぼ通用しない。";
 
-  } else if (score >= 5) {
+  } else if (score >= 6) {
 
     message =
-      "まずまず。まだ少し騙されている。";
+      "なかなかの成績。もう少しでとらのすけ攻略。";
+
+  } else if (score >= 3) {
+
+    message =
+      "半分くらい騙されている。とらのすけ強し。";
 
   } else {
 
     message =
-      "とらのすけにかなり騙されている。";
-
+      "とらのすけに完全に翻弄されている。";
   }
 
   $("hint").textContent = message;
@@ -302,13 +350,16 @@ function showFinalResult() {
 
   $("nextBtn").style.display = "block";
   $("nextBtn").textContent = "もう一度プレイ";
-
-  $("nextBtn").dataset.mode = "restart";
 }
+ 
+  
 
 
 // リセット
 function restartGame() {
+
+  gameStarted = false;
+  gameFinished = false;
 
   round = 1;
   score = 0;
@@ -318,11 +369,12 @@ function restartGame() {
   $("score").textContent = 0;
   $("streak").textContent = 0;
 
-  $("nextBtn").dataset.mode = "";
+  $("nextBtn").textContent =
+    "次の発言へ →";
 
-  prepareQuestions();
+  $("card").style.display = "none";
 
-  nextQuestion();
+  $("startScreen").style.display = "flex";
 }
 
 
@@ -337,18 +389,24 @@ $("resetBtn").addEventListener("click", () => {
 // もう一度プレイ処理
 $("nextBtn").addEventListener("click", () => {
 
-  if ($("nextBtn").dataset.mode === "restart") {
+  if (gameFinished) {
 
     restartGame();
-
+    return;
   }
 
+  if (round >= TOTAL_QUESTIONS) {
+
+    showFinalResult();
+    return;
+  }
+
+  round++;
+
+  nextQuestion();
 });
 
 
-// 初期起動
-prepareQuestions();
-nextQuestion();
 
 
 </script>
