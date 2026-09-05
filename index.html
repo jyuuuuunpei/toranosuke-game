@@ -139,93 +139,162 @@ let round = 1;
 let score = 0;
 let streak = 0;
 let best = Number(localStorage.getItem("toranosuke-best") || 0);
+
 let current = null;
 let locked = false;
-let lastIndex = -1;
+let questionPool = [];
+
+const TOTAL_QUESTIONS = 10;
 
 const $ = id => document.getElementById(id);
 
 $("best").textContent = best;
 
-function nextQuestion(){
-  locked = false;
-  let idx;
-  do{
-    idx = Math.floor(Math.random()*statements.length);
-  }while(idx === lastIndex && statements.length > 1);
-  lastIndex = idx;
-  current = statements[idx];
 
-  $("round").textContent = `ROUND ${round}`;
-  $("quote").textContent = `「${current.text}」`;
-  $("hint").textContent = "直感で見抜け。正しいと思う方をタップ。";
-  $("result").className = "result";
-  $("result").textContent = "";
-  $("choices").style.display = "grid";
-  $("nextBtn").style.display = "none";
-  $("card").classList.remove("pulse");
+// 10問分をランダムに準備
+function prepareQuestions() {
+  questionPool = [...statements]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, TOTAL_QUESTIONS);
 }
 
-function answer(value){
-  if(locked) return;
+
+// 問題表示
+function nextQuestion() {
+  locked = false;
+
+  current = questionPool[round - 1];
+
+  $("round").textContent = `ROUND ${round} / ${TOTAL_QUESTIONS}`;
+  $("quote").textContent = `「${current.text}」`;
+
+  $("hint").textContent =
+    "直感で見抜け。正しいと思う方をタップ。";
+
+  $("result").className = "result";
+  $("result").textContent = "";
+
+  $("choices").style.display = "grid";
+  $("nextBtn").style.display = "none";
+}
+
+
+// 回答処理
+function answer(value) {
+
+  if (locked) return;
+
   locked = true;
+
   const isCorrect = value === current.truth;
 
-  if(isCorrect){
+  if (isCorrect) {
+
     score++;
     streak++;
-    if(streak > best){
+
+    if (streak > best) {
       best = streak;
       localStorage.setItem("toranosuke-best", best);
     }
+
     $("result").className = "result good";
-    $("result").textContent = `正解！ ${current.reason}`;
-  }else{
+    $("result").textContent =
+      `正解！ ${current.reason}`;
+
+  } else {
+
     streak = 0;
+
     $("result").className = "result bad";
-    $("result").textContent = `不正解。 ${current.reason}`;
+    $("result").textContent =
+      `不正解。 ${current.reason}`;
   }
 
   $("score").textContent = score;
   $("streak").textContent = streak;
   $("best").textContent = best;
+
   $("choices").style.display = "none";
+
   $("nextBtn").style.display = "block";
-  $("card").classList.add("pulse");
+
+  if (round >= TOTAL_QUESTIONS) {
+    $("nextBtn").textContent = "結果を見る";
+  } else {
+    $("nextBtn").textContent = "次の発言へ →";
+  }
 }
 
-document.querySelectorAll(".choice").forEach(btn=>{
-  btn.addEventListener("click",()=>answer(btn.dataset.answer === "true"));
+
+// 本当・嘘ボタン
+document.querySelectorAll(".choice").forEach(btn => {
+
+  btn.addEventListener("click", () => {
+
+    const value =
+      btn.dataset.answer === "true";
+
+    answer(value);
+
+  });
+
 });
 
-$("nextBtn").addEventListener("click",()=>{
-  if(round >= 10){
-    restartGame();
-    return;
+
+// 次へボタン
+$("nextBtn").addEventListener("click", () => {
+
+  if (round >= TOTAL_QUESTIONS) {
+
+    showFinalResult();
+
+  } else {
+
+    round++;
+    nextQuestion();
+
   }
 
-  round++;
-  nextQuestion();
 });
-  function showFinalResult(){
+
+
+// 結果画面
+function showFinalResult() {
+
   locked = true;
 
   $("round").textContent = "RESULT";
-  $("quote").textContent = `10問終了！ 正解数は ${score} / 10`;
-  
+
+  $("quote").textContent =
+    `10問終了！ 正解数 ${score} / ${TOTAL_QUESTIONS}`;
+
   let message = "";
 
-  if(score === 10){
-    message = "完全勝利。とらのすけの嘘は全部見抜かれた。";
-  }else if(score >= 8){
-    message = "かなり鋭い。ほぼ見抜いてる。";
-  }else if(score >= 5){
-    message = "まずまず。とらのすけも少し焦ってる。";
-  }else{
-    message = "とらのすけにかなり騙されてる。";
+  if (score === 10) {
+
+    message =
+      "完全勝利。とらのすけの嘘を全部見抜いた。";
+
+  } else if (score >= 8) {
+
+    message =
+      "かなり鋭い。ほぼ見抜いている。";
+
+  } else if (score >= 5) {
+
+    message =
+      "まずまず。まだ少し騙されている。";
+
+  } else {
+
+    message =
+      "とらのすけにかなり騙されている。";
+
   }
 
   $("hint").textContent = message;
+
   $("result").className = "result";
   $("result").textContent = "";
 
@@ -233,19 +302,14 @@ $("nextBtn").addEventListener("click",()=>{
 
   $("nextBtn").style.display = "block";
   $("nextBtn").textContent = "もう一度プレイ";
-}
-});
 
-$("resetBtn").addEventListener("click",()=>{
-  round = 1;
-  score = 0;
-  streak = 0;
-  $("score").textContent = 0;
-  $("streak").textContent = 0;
-  nextQuestion();
-}); 
-  
-function restartGame(){
+  $("nextBtn").dataset.mode = "restart";
+}
+
+
+// リセット
+function restartGame() {
+
   round = 1;
   score = 0;
   streak = 0;
@@ -254,12 +318,39 @@ function restartGame(){
   $("score").textContent = 0;
   $("streak").textContent = 0;
 
-  $("nextBtn").textContent = "次の発言へ →";
+  $("nextBtn").dataset.mode = "";
+
+  prepareQuestions();
 
   nextQuestion();
 }
 
+
+// リセットボタン
+$("resetBtn").addEventListener("click", () => {
+
+  restartGame();
+
+});
+
+
+// もう一度プレイ処理
+$("nextBtn").addEventListener("click", () => {
+
+  if ($("nextBtn").dataset.mode === "restart") {
+
+    restartGame();
+
+  }
+
+});
+
+
+// 初期起動
+prepareQuestions();
 nextQuestion();
+
+
 </script>
 </body>
 </html>
