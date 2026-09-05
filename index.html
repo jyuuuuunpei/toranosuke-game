@@ -1,4 +1,4 @@
-<!doctype html>
+ <!doctype html>
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
@@ -199,8 +199,41 @@ document.querySelectorAll(".choice").forEach(btn=>{
 });
 
 $("nextBtn").addEventListener("click",()=>{
+  if(round >= 10){
+    restartGame();
+    return;
+  }
+
   round++;
   nextQuestion();
+});
+  function showFinalResult(){
+  locked = true;
+
+  $("round").textContent = "RESULT";
+  $("quote").textContent = `10問終了！ 正解数は ${score} / 10`;
+  
+  let message = "";
+
+  if(score === 10){
+    message = "完全勝利。とらのすけの嘘は全部見抜かれた。";
+  }else if(score >= 8){
+    message = "かなり鋭い。ほぼ見抜いてる。";
+  }else if(score >= 5){
+    message = "まずまず。とらのすけも少し焦ってる。";
+  }else{
+    message = "とらのすけにかなり騙されてる。";
+  }
+
+  $("hint").textContent = message;
+  $("result").className = "result";
+  $("result").textContent = "";
+
+  $("choices").style.display = "none";
+
+  $("nextBtn").style.display = "block";
+  $("nextBtn").textContent = "もう一度プレイ";
+}
 });
 
 $("resetBtn").addEventListener("click",()=>{
@@ -210,7 +243,21 @@ $("resetBtn").addEventListener("click",()=>{
   $("score").textContent = 0;
   $("streak").textContent = 0;
   nextQuestion();
-});
+}); 
+  
+function restartGame(){
+  round = 1;
+  score = 0;
+  streak = 0;
+  locked = false;
+
+  $("score").textContent = 0;
+  $("streak").textContent = 0;
+
+  $("nextBtn").textContent = "次の発言へ →";
+
+  nextQuestion();
+}
 
 nextQuestion();
 </script>
