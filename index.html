@@ -55,7 +55,7 @@
       background:rgba(245,158,11,.08);right:-60px;top:-60px}
     .round{font-size:12px;letter-spacing:.08em;color:var(--accent);font-weight:800;text-transform:uppercase}
     .speaker{font-size:14px;color:var(--muted);margin-top:16px}
-    .quote{font-size:27px;line-height:1.45;font-weight:800;margin:16px 0 20px;word-break:keep-all}
+    .quote{font-size:clamp(21px,5.8vw,28px);line-height:1.5;font-weight:800;margin:16px 0 20px;white-space:normal;overflow-wrap:anywhere;word-break:normal;max-width:100%;}
     .hint{font-size:13px;color:var(--muted);line-height:1.6}
     .result{
       display:none;margin-top:16px;padding:14px;border-radius:16px;font-weight:800;line-height:1.5
@@ -103,7 +103,7 @@
       <div>
         <div class="round" id="round">ROUND 1</div>
         <div class="speaker">とらのすけの発言</div>
-        <div class="quote" id="quote">「昨日は22時に寝たで。」</div>
+        <div class="quote" id="quote">「毎朝５時に起きて１０キロ歩いてんねん。」</div>
         <div class="hint" id="hint">直感で見抜け。問題は毎回ランダムに変わります。</div>
         <div class="result" id="result"></div>
       </div>
