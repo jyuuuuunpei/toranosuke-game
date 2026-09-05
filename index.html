@@ -169,6 +169,10 @@ const TOTAL_QUESTIONS = 10;
 let gameStarted = false;
 let gameFinished = false;
 
+const $ = id => document.getElementById(id);
+
+$("best").textContent = best;
+
 $("startBtn").addEventListener("click", () => {
 
   gameStarted = true;
@@ -189,9 +193,9 @@ $("startBtn").addEventListener("click", () => {
   nextQuestion();
 });
 
-const $ = id => document.getElementById(id);
 
-$("best").textContent = best;
+
+
 
 
 // 10問分をランダムに準備
@@ -281,23 +285,6 @@ document.querySelectorAll(".choice").forEach(btn => {
     answer(value);
 
   });
-
-});
-
-
-// 次へボタン
-$("nextBtn").addEventListener("click", () => {
-
-  if (round >= TOTAL_QUESTIONS) {
-
-    showFinalResult();
-
-  } else {
-
-    round++;
-    nextQuestion();
-
-  }
 
 });
 
