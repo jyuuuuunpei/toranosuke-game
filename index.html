@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="とらのすけの嘘" />
+  <title>とらのすけの嘘を見破れ！</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --panel2:#1f2937;
+      --text:#f8fafc;
+      --muted:#94a3b8;
+      --good:#22c55e;
+      --bad:#ef4444;
+      --accent:#f59e0b;
+      --blue:#38bdf8;
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;min-height:100%;background:
+      radial-gradient(circle at 20% 0%, rgba(245,158,11,.18), transparent 34%),
+      radial-gradient(circle at 100% 20%, rgba(56,189,248,.12), transparent 34%),
+      var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif}
+    body{min-height:100dvh;display:flex;align-items:stretch;justify-content:center}
+    .app{width:min(100%,560px);min-height:100dvh;padding:
+      max(18px, env(safe-area-inset-top))
+      16px
+      max(18px, env(safe-area-inset-bottom))
+      16px;
+      display:flex;flex-direction:column;gap:14px}
+    header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .avatar{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,#f59e0b,#fb7185);
+      display:grid;place-items:center;font-size:28px;box-shadow:var(--shadow)}
+    h1{font-size:19px;line-height:1.2;margin:0}
+    .sub{font-size:12px;color:var(--muted);margin-top:3px}
+    .reset{
+      border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--text);
+      padding:10px 12px;border-radius:14px;font-weight:700
+    }
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;padding:10px;text-align:center}
+    .stat b{display:block;font-size:21px}
+    .stat span{font-size:11px;color:var(--muted)}
+    .card{flex:1;min-height:390px;background:linear-gradient(180deg,rgba(31,41,55,.95),rgba(17,24,39,.98));
+      border:1px solid rgba(255,255,255,.09);border-radius:26px;box-shadow:var(--shadow);
+      padding:22px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+    .card:before{content:"";position:absolute;width:160px;height:160px;border-radius:50%;
+      background:rgba(245,158,11,.08);right:-60px;top:-60px}
+    .round{font-size:12px;letter-spacing:.08em;color:var(--accent);font-weight:800;text-transform:uppercase}
+    .speaker{font-size:14px;color:var(--muted);margin-top:16px}
+    .quote{font-size:27px;line-height:1.45;font-weight:800;margin:16px 0 20px;word-break:keep-all}
+    .hint{font-size:13px;color:var(--muted);line-height:1.6}
+    .result{
+      display:none;margin-top:16px;padding:14px;border-radius:16px;font-weight:800;line-height:1.5
+    }
+    .result.good{display:block;background:rgba(34,197,94,.13);border:1px solid rgba(34,197,94,.28);color:#bbf7d0}
+    .result.bad{display:block;background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.28);color:#fecaca}
+    .buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    button.choice{border:0;border-radius:20px;padding:18px 12px;font-size:19px;font-weight:900;color:#fff;
+      box-shadow:0 10px 24px rgba(0,0,0,.2);touch-action:manipulation}
+    .truth{background:linear-gradient(135deg,#16a34a,#22c55e)}
+    .lie{background:linear-gradient(135deg,#dc2626,#ef4444)}
+    button.choice:active{transform:scale(.98)}
+    .next{display:none;width:100%;border:0;border-radius:20px;padding:17px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);
+      color:#fff;font-size:18px;font-weight:900}
+    .footer{text-align:center;font-size:11px;color:#64748b}
+    .pulse{animation:pulse .35s ease}
+    @keyframes pulse{50%{transform:scale(1.025)}}
+    @media (max-height:720px){
+      .card{min-height:330px}
+      .quote{font-size:23px}
+      .app{gap:10px}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="brand">
+        <div class="avatar">🐯</div>
+        <div>
+          <h1>とらのすけの嘘を見破れ！</h1>
+          <div class="sub">発言が本当か嘘かを当てろ</div>
+        </div>
+      </div>
+      <button class="reset" id="resetBtn">リセット</button>
+    </header>
+
+    <section class="stats">
+      <div class="stat"><b id="score">0</b><span>正解</span></div>
+      <div class="stat"><b id="streak">0</b><span>連勝</span></div>
+      <div class="stat"><b id="best">0</b><span>最高連勝</span></div>
+    </section>
+
+    <section class="card" id="card">
+      <div>
+        <div class="round" id="round">ROUND 1</div>
+        <div class="speaker">とらのすけの発言</div>
+        <div class="quote" id="quote">「昨日は22時に寝たで。」</div>
+        <div class="hint" id="hint">直感で見抜け。問題は毎回ランダムに変わります。</div>
+        <div class="result" id="result"></div>
+      </div>
+
+      <div>
+        <div class="buttons" id="choices">
+          <button class="choice truth" data-answer="true">✅ 本当</button>
+          <button class="choice lie" data-answer="false">❌ 嘘</button>
+        </div>
+        <button class="next" id="nextBtn">次の発言へ →</button>
+      </div>
+    </section>
+
+    <div class="footer">何回でもプレイ可能。最高連勝は端末に保存されます。</div>
+  </main>
+
+<script>
+const statements = [
+  {text:"昨日は22時に寝たで。", truth:true, reason:"今回は本当。珍しく早寝したらしい。"},
+  {text:"朝ごはんにラーメン3杯食べた。", truth:false, reason:"嘘。3杯は盛りすぎ。"},
+  {text:"財布を家に忘れてコンビニで気づいた。", truth:true, reason:"本当。レジ前で静かに絶望した。"},
+  {text:"1日で映画を5本見たことある。", truth:true, reason:"本当。休日を丸ごと映画館にした。"},
+  {text:"昨日、宇宙人と電話した。", truth:false, reason:"嘘。通信料金以前の問題。"},
+  {text:"アイスを買ったのに帰るまで一口も食べなかった。", truth:true, reason:"本当。意外と我慢できる。"},
+  {text:"スマホの充電が1%でも全然焦らへん。", truth:false, reason:"嘘。1%はだいたい緊急事態。"},
+  {text:"寝る前に『あと5分だけ』で1時間スマホ見た。", truth:true, reason:"本当。5分は時空をゆがめる。"},
+  {text:"辛いものは一切食べられへん。", truth:false, reason:"嘘。そこまで弱くない。"},
+  {text:"電車で降りる駅を一回通り過ぎたことがある。", truth:true, reason:"本当。ぼーっとしていた。"},
+  {text:"じゃんけんで10連勝したことある。", truth:false, reason:"嘘。さすがに話を盛った。"},
+  {text:"雨の日に傘を持ってるのに濡れた。", truth:true, reason:"本当。横殴りの雨には勝てない。"},
+  {text:"カラオケで100点を5回連続で取った。", truth:false, reason:"嘘。神話級の設定。"},
+  {text:"家を出てから鍵を閉めたか気になって戻った。", truth:true, reason:"本当。確認あるある。"},
+  {text:"目覚まし1回で毎日起きられる。", truth:false, reason:"嘘。そんな完璧な朝はなかなか来ない。"},
+  {text:"コンビニに行ったのに何も買わずに帰ったことがある。", truth:true, reason:"本当。目的を忘れた。"},
+  {text:"昨日だけで水を5リットル飲んだ。", truth:false, reason:"嘘。量を盛っている。"},
+  {text:"靴下を左右違うまま外出したことがある。", truth:true, reason:"本当。意外と気づかれない。"},
+  {text:"ゲームで負けても一切悔しくない。", truth:false, reason:"嘘。ちょっとは悔しい。"},
+  {text:"寝落ちしてスマホを顔に落としたことがある。", truth:true, reason:"本当。地味に痛いやつ。"},
+  {text:"冷蔵庫を開けた理由を忘れたことがある。", truth:true, reason:"本当。冷気だけ浴びて終了。"},
+  {text:"昨日は一度もスマホを触ってない。", truth:false, reason:"嘘。現代人にはかなり難易度が高い。"},
+  {text:"エレベーターで閉ボタンを連打したことがある。", truth:true, reason:"本当。気持ちだけは高速化。"},
+  {text:"1週間ずっと同じ晩ごはんでも平気。", truth:false, reason:"嘘。さすがに飽きる。"}
+];
+
+let round = 1;
+let score = 0;
+let streak = 0;
+let best = Number(localStorage.getItem("toranosuke-best") || 0);
+let current = null;
+let locked = false;
+let lastIndex = -1;
+
+const $ = id => document.getElementById(id);
+
+$("best").textContent = best;
+
+function nextQuestion(){
+  locked = false;
+  let idx;
+  do{
+    idx = Math.floor(Math.random()*statements.length);
+  }while(idx === lastIndex && statements.length > 1);
+  lastIndex = idx;
+  current = statements[idx];
+
+  $("round").textContent = `ROUND ${round}`;
+  $("quote").textContent = `「${current.text}」`;
+  $("hint").textContent = "直感で見抜け。正しいと思う方をタップ。";
+  $("result").className = "result";
+  $("result").textContent = "";
+  $("choices").style.display = "grid";
+  $("nextBtn").style.display = "none";
+  $("card").classList.remove("pulse");
+}
+
+function answer(value){
+  if(locked) return;
+  locked = true;
+  const isCorrect = value === current.truth;
+
+  if(isCorrect){
+    score++;
+    streak++;
+    if(streak > best){
+      best = streak;
+      localStorage.setItem("toranosuke-best", best);
+    }
+    $("result").className = "result good";
+    $("result").textContent = `正解！ ${current.reason}`;
+  }else{
+    streak = 0;
+    $("result").className = "result bad";
+    $("result").textContent = `不正解。 ${current.reason}`;
+  }
+
+  $("score").textContent = score;
+  $("streak").textContent = streak;
+  $("best").textContent = best;
+  $("choices").style.display = "none";
+  $("nextBtn").style.display = "block";
+  $("card").classList.add("pulse");
+}
+
+document.querySelectorAll(".choice").forEach(btn=>{
+  btn.addEventListener("click",()=>answer(btn.dataset.answer === "true"));
+});
+
+$("nextBtn").addEventListener("click",()=>{
+  round++;
+  nextQuestion();
+});
+
+$("resetBtn").addEventListener("click",()=>{
+  round = 1;
+  score = 0;
+  streak = 0;
+  $("score").textContent = 0;
+  $("streak").textContent = 0;
+  nextQuestion();
+});
+
+nextQuestion();
+</script>
+</body>
+</html>
